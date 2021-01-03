@@ -104,22 +104,22 @@ La siguiente ((clase)) guarda un objeto de ((nivel)). Su argumento debe ser la c
 
 ```{includeCode: true}
 class Nivel {
-  constructor(plano) {
-    let filas = plano.trim().split("\n").map(l => [...l]);
-    this.height = filas.length;
-    this.width = filas[0].length;
-    this.iniciarActores = [];
-
-    this.filas = filas.map((fila, y) => {
-      return fila.map((car, x) => {
-        let tipo = caracteresDelNivel[car];
-        if (typeof tipo == "string") return tipo;
-        this.iniciarActores.push(
-          tipo.create(new Vector(x, y), car));
-        return "vacío";
+    constructor(plano) {
+      let filas = plano.trim().split("\n").map(l => [...l]);
+      this.height = filas.length;
+      this.width = filas[0].length;
+      this.iniciarActores = [];
+  
+      this.filas = filas.map((fila, y) => {
+        return fila.map((car, x) => {
+          let tipo = caracteresDelNivel[car];
+          if (typeof tipo == "string") return tipo;
+          this.iniciarActores.push(
+            tipo.create(new Vector(x, y), car));
+          return "vacío";
+        });
       });
-    });
-  }
+    }
 }
 ```
 
@@ -150,19 +150,19 @@ para dar seguimiento al estado de un juego que en ejecución.
 
 ```{includeCode: true}
 class Estado {
-  constructor(nivel, actores, estatus) {
-    this.nivel = nivel;
-    this.actores = actores;
-    this.estatus = estatus;
-  }
-
-  static start(nivel) {
-    return new Estado(nivel, nivel.iniciarActores, "jugando");
-  }
-
-  get jugador() {
-    return this.actores.find(a => a.tipo == "jugador");
-  }
+    constructor(nivel, actores, estatus) {
+      this.nivel = nivel;
+      this.actores = actores;
+      this.estatus = estatus;
+    }
+  
+    static start(nivel) {
+      return new Estado(nivel, nivel.iniciarActores, "jugando");
+    }
+  
+    get jugador() {
+      return this.actores.find(a => a.tipo == "jugador");
+    }
 }
 ```
 
@@ -188,15 +188,15 @@ Esta es la clase `Vector` que usaremos para nuestros valores bidimensionales, ta
 
 ```{includeCode: true}
 class Vector {
-  constructor(x, y) {
-    this.x = x; this.y = y;
-  }
-  plus(other) {
-    return new Vector(this.x + other.x, this.y + other.y);
-  }
-  times(factor) {
-    return new Vector(this.x * factor, this.y * factor);
-  }
+    constructor(x, y) {
+      this.x = x; this.y = y;
+    }
+    plus(otro) {
+      return new Vector(this.x + otro.x, this.y + otro.y);
+    }
+    times(factor) {
+      return new Vector(this.x * factor, this.y * factor);
+    }
 }
 ```
 
@@ -212,20 +212,20 @@ La clase jugador tiene una propiedad `velocidad` que guarda su velocidad actual 
 
 ```{includeCode: true}
 class Jugador {
-  constructor(posicion, velocidad) {
-    this.posicion = posicion;
-    this.velocidad = velocidad;
-  }
-
-  get type() { return "jugador"; }
-
-  static create(posicion) {
-    return new Jugador(posicion.plus(new Vector(0, -0.5)),
-                      new Vector(0, 0));
-  }
+    constructor(posicion, velocidad) {
+      this.posicion = posicion;
+      this.velocidad = velocidad;
+    }
+  
+    get tipo() { return "jugador"; }
+  
+    static create(posicion) {
+      return new Jugador(posicion.plus(new Vector(0, -0.5)),
+                        new Vector(0, 0));
+    }
 }
 
-Player.prototype.tamano = new Vector(0.8, 1.5);
+Jugador.prototype.tamano = new Vector(0.8, 1.5);
 ```
 
 Debido a que un jugador tiene una altura de un cuadrado y medio, su posición inicial está establecida a ser medio cuadrado arriba de la posición donde el caracter `@` apareció. De esta manera, su parte inferior se alinea con la parte inferior del cuadrado en el que apareció.
@@ -240,50 +240,50 @@ El método `create` mira al caracter que el constructor de `Level` pasa y crea e
 
 ```{includeCode: true}
 class Lava {
-  constructor(posicion, velocidad, reiniciar) {
-    this.posicion = posicion;
-    this.velocidad = velocidad;
-    this.reiniciar = reiniciar;
-  }
-
-  get type() { return "lava"; }
-
-  static create(posicion, car) {
-    if (car == "=") {
-      return new Lava(posicion, new Vector(2, 0));
-    } else if (car == "|") {
-      return new Lava(posicion, new Vector(0, 2));
-    } else if (car == "v") {
-      return new Lava(posicion, new Vector(0, 3), posicion);
+    constructor(posicion, velocidad, reiniciar) {
+      this.posicion = posicion;
+      this.velocidad = velocidad;
+      this.reiniciar = reiniciar;
+    }
+  
+    get tipo() { return "lava"; }
+  
+    static create(posicion, car) {
+      if (car == "=") {
+        return new Lava(posicion, new Vector(2, 0));
+      } else if (car == "|") {
+        return new Lava(posicion, new Vector(0, 2));
+      } else if (car == "v") {
+        return new Lava(posicion, new Vector(0, 3), posicion);
+      }
     }
   }
-}
-
+  
 Lava.prototype.tamano = new Vector(1, 1);
 ```
 
 {{index "Coin class", animation}}
 
-Los actores `Moneda` son relativamente simples. Mayormente se quedan en su lugar. Pero para avivar un poco el juego, se les da un "bamboleo", un leve movimiento vertical de arriba a abajo. Para serguir esto, un objeto moneda guarda una posición base así como una propiedad `wobble` que registra la ((fase)) del movimiento de rebote. Juntos, estos determinan la posición real de la moneda (guardada en la propiedad `posicion`).
+Los actores `Moneda` son relativamente simples. Mayormente se quedan en su lugar. Pero para avivar un poco el juego, se les da un "bamboleo", un leve movimiento vertical de arriba a abajo. Para seguir esto, un objeto moneda guarda una posición base así como una propiedad `wobble` que registra la ((fase)) del movimiento de rebote. Juntos, estos determinan la posición real de la moneda (guardada en la propiedad `posicion`).
 
 ```{includeCode: true}
 class Moneda {
-  constructor(posicion, posBase, bamboleo) {
-    this.posicion = posicion;
-    this.posBase = posBase;
-    this.bamboleo = bamboleo;
-  }
-
-  get type() { return "coin"; }
-
-  static create(posicion) {
-    let posBase = posicion.plus(new Vector(0.2, 0.1));
-    return new Coin(posBase, posBase,
-                    Math.random() * Math.PI * 2);
-  }
+    constructor(posicion, posBase, bamboleo) {
+      this.posicion = posicion;
+      this.posBase = posBase;
+      this.bamboleo = bamboleo;
+    }
+  
+    get tipo() { return "moneda"; }
+  
+    static create(posicion) {
+      let posBase = posicion.plus(new Vector(0.2, 0.1));
+      return new Moneda(posBase, posBase,
+                      Math.random() * Math.PI * 2);
+    }
 }
-
-Coin.prototype.tamano = new Vector(0.6, 0.6);
+  
+Moneda.prototype.tamano = new Vector(0.6, 0.6);
 ```
 
 {{index "Math.random function", "random number", "Math.sin function", sine, wave}}
@@ -296,17 +296,17 @@ Para evitar una situación donde todas las monedas se mueven arriba y abajo sinc
 
 {{index map, [object, "as map"]}}
 
-Ahora podemos definir el objeto `caracteresDeNivel` que mapea los caracteres del plano ya sea a rejilla de fondo o clases de actores.
+Ahora podemos definir el objeto `caracteresDeNivel` que mapea los caracteres del plano ya sea a cuadr{icula de fondo o clases de actores.
 
 ```{includeCode: true}
-const caracteresDeNivel = {
-  ".": "vacío", "#": "muro", "+": "lava",
-  "@": Jugador, "o": Moneda,
-  "=": Lava, "|": Lava, "v": Lava
+const caracteresDelNivel = {
+    ".": "vacío", "#": "muro", "+": "lava",
+    "@": Jugador, "o": Moneda,
+    "=": Lava, "|": Lava, "v": Lava
 };
 ```
 
-Eso nos da todas las partes que necesitamos para crear una instancia de `Level`.
+Eso nos da todas las partes que necesitamos para crear una instancia de `Nivel`.
 
 ```{includeCode: strip_log}
 let simpleNivel = new Nivel(simplePlanoDeNivel);
@@ -330,7 +330,7 @@ Algunos _((puntos de corte))_ en un sistema se prestan bien a la separacion medi
 
 {{index graphics, encapsulation, graphics}}
 
-Hay una cosa que sí _vamos_ a encapsular, y eso es el subsistema de ((dibujo)). La razón para esto es que ((mostraremos)) el mismo juego en una manera diferente en el [próximo capítulo](canvas#canvasdisplay). Poniendo el dibujo detrás de una interface, podemos cargar el mismo programa de juego ahí y conectar un nuevo ((module)) de pantalla.
+Hay una cosa que sí _vamos_ a encapsular, y eso es el subsistema de ((dibujo)). La razón para esto es que ((mostraremos)) el mismo juego en una manera diferente en el [próximo capítulo](canvas#canvasdisplay). Poniendo el dibujo detrás de una interface, podemos cargar el mismo programa de juego ahí y conectar un nuevo ((módulo)) de pantalla.
 
 {{id domdisplay}}
 
@@ -338,216 +338,156 @@ Hay una cosa que sí _vamos_ a encapsular, y eso es el subsistema de ((dibujo)).
 
 {{index "DOMDisplay class", [DOM, graphics]}}
 
-The encapsulation of the ((drawing)) code is done by defining a
-_((display))_ object, which displays a given ((level)) and state. The
-display type we define in this chapter is called `DOMDisplay` because
-it uses DOM elements to show the level.
+La encapsulación del código de ((dibujo)) se hace definiendo un objeto de _((visualización))_,que muestra un ((nivel)) y estado dado. El tipo de visualización que definimos en este capítulo se llama `DOMDisplay` porque usa elemento del DOM para mostrar el nivel.
 
 {{index "style attribute", CSS}}
 
-We'll be using a style sheet to set the actual colors and other
-fixed properties of the elements that make up the game. It would also
-be possible to directly assign to the elements' `style` property when
-we create them, but that would produce more verbose programs.
+Estaremos usando una hoja de estilos para definir los colores y otras propiedades fijas de los elementos que conforman el juego. También sería posible asignar directamente a los elementos la propiedad `style` cuando los creemos, pero eso produciría programas más verbosos.
 
 {{index "class attribute"}}
 
-The following helper function provides a succinct way to create an
-element and give it some attributes and child nodes:
+La siguiente función auxiliar provee una forma precisa de crear un elemento y darle algunos atributos y nodos hijos:
 
 ```{includeCode: true}
 function elt(name, attrs, ...children) {
-  let dom = document.createElement(name);
-  for (let attr of Object.keys(attrs)) {
-    dom.setAttribute(attr, attrs[attr]);
-  }
-  for (let child of children) {
-    dom.appendChild(child);
-  }
-  return dom;
+    let dom = document.createElement(name);
+    for (let attr of Object.keys(attrs)) {
+      dom.setAttribute(attr, attrs[attr]);
+    }
+    for (let child of children) {
+      dom.appendChild(child);
+    }
+    return dom;
 }
 ```
 
-A display is created by giving it a parent element to which it should
-append itself and a ((level)) object.
+Una visualización es creada dándole un elemento padre al cual debe agregarse y un objeto de ((nivel)).
 
 ```{includeCode: true}
 class DOMDisplay {
-  constructor(parent, level) {
-    this.dom = elt("div", {class: "game"}, drawGrid(level));
-    this.actorLayer = null;
-    parent.appendChild(this.dom);
-  }
-
-  clear() { this.dom.remove(); }
+    constructor(padre, nivel) {
+      this.dom = elt("div", {class: "game"}, dibujarCuadricula(nivel));
+      this.capaActor = null;
+      padre.appendChild(this.dom);
+    }
+  
+    clear() { this.dom.remove(); }
 }
 ```
 
 {{index level}}
 
-The level's ((background)) grid, which never changes, is drawn once.
-Actors are redrawn every time the display is updated with a given
-state. The `actorLayer` property will be used to track the element
-that holds the actors so that they can be easily removed and replaced.
+El ((fondo)) del nivel, que nunca cambia, es dibujado una sola vez. Los actores son redibujados cada vez que la visualización es actualizada con un estado dado. La propiedad `capaActor` será usada para seguir al elemento que tiene a los actores para que puedan ser fácilmente removidos y reemplazados.
 
 {{index scaling, "DOMDisplay class"}}
 
-Our ((coordinates)) and sizes are tracked in ((grid)) units, where a
-size or distance of 1 means one grid block. When setting ((pixel))
-sizes, we will have to scale these coordinates up—everything in the
-game would be ridiculously small at a single pixel per square. The
-`scale` constant gives the number of pixels that a single unit takes
-up on the screen.
+Nuestras ((coordenadas)) y tamaños son registrados en unidades de ((cuadrícula)), donde un tamaño o distancia de 1 significa un bloque de cuadrícula. Cuando se establezcan los tamaños de ((pixel)), tendremos que escalar estas coordenadas hacia arriba -todo en el juego sería ridiculamente pequeño a un sólo pixel por cuadrado. La constante `escala` da el número de pixeles que una sola unidad toma en la pantalla.
 
 ```{includeCode: true}
-const scale = 20;
+const escala = 20;
 
-function drawGrid(level) {
+function dibujarCuadricula(nivel) {
   return elt("table", {
-    class: "background",
-    style: `width: ${level.width * scale}px`
-  }, ...level.rows.map(row =>
-    elt("tr", {style: `height: ${scale}px`},
-        ...row.map(type => elt("td", {class: type})))
+    class: "fondo",
+    style: `width: ${nivel.width * escala}px`
+  }, ...nivel.filas.map(fila =>
+    elt("tr", {style: `height: ${escala}px`},
+        ...fila.map(tipo => elt("td", {class: tipo})))
   ));
 }
 ```
 
 {{index "table (HTML tag)", "tr (HTML tag)", "td (HTML tag)", "spread operator"}}
 
-As mentioned, the background is drawn as a `<table>` element.
-This nicely corresponds to the structure of the `rows` property of the
-level—each row of the grid is turned into a table row (`<tr>`
-element). The strings in the grid are used as class names for the
-table cell (`<td>`) elements. The spread (triple dot) operator is used
-to pass arrays of child nodes to `elt` as separate arguments.
+Como mencionamos, el fondo es dibujado como un elemento `<table>`. Esto corresponde con la a la estructura de la propiedad `filas` del nivel -cada fila de la cuadrícula se convierte en una fila de la tabla ( elemento `<tr>`). Las cadenas de caracteres en la cuadrícula son usadas como nombres de clases para los elementos celdas de tabla (`<td>`). El operador de propagación (tres puntos) se usa para pasar arreglos de nodos hijos a `elt` como argumentos separados.
 
 {{id game_css}}
 
-The following ((CSS)) makes the table look like the background we
-want:
+El siguiente ((CSS)) hace que la tabla luzca como el fondo que queremos:
 
 ```{lang: "text/css"}
-.background    { background: rgb(52, 166, 251);
+.fondo    { background: rgb(52, 166, 251);
                  table-layout: fixed;
                  border-spacing: 0;              }
-.background td { padding: 0;                     }
+.fondo td { padding: 0;                     }
 .lava          { background: rgb(255, 100, 100); }
-.wall          { background: white;              }
+.muro          { background: white;              }
 ```
 
 {{index "padding (CSS)"}}
 
-Some of these (`table-layout`, `border-spacing`, and `padding`) are
-used to suppress unwanted default behavior. We don't want the layout
-of the ((table)) to depend upon the contents of its cells, and we
-don't want space between the ((table)) cells or padding inside them.
+Algunos de estos (`table-layout`, `border-spacing`, and `padding`) son usados para suprimir comportamientos predeterminados no deseados. No queremos que el layout de la ((tabla)) dependa de los contenidos de sus celdas, y no queremos espacio entre las celdas de la ((tabla)) o padding dentro de ellas.
 
 {{index "background (CSS)", "rgb (CSS)", CSS}}
 
-The `background` rule sets the background color. CSS allows colors to
-be specified both as words (`white`) or with a format such as
-`rgb(R, G, B)`, where the red, green, and blue components of the color
-are separated into three numbers from 0 to 255. So, in `rgb(52, 166, 251)`, the red component is 52, green is 166, and blue is 251. Since
-the blue component is the largest, the resulting color will be bluish.
-You can see that in the `.lava` rule, the first number (red) is the
-largest.
+La regla `background` define el color del fondo. El CSS permite que los colores sean específicados tanto como palabras (`white`) o con un formato como `rgb(R, G, B)`, donde los componentes rojo, verde y azul del color son separados en tres números de 0 a 255. Entonces, en `rgb(52, 166, 251)`, el componente rojo es 52, el verde es 166 y el azul es 251. Dado que el componente azul es el más grande, el color resultante será azulado. Puedes ver que en la regla `.lava`, el primer número (rojo) es el más grande.
 
 {{index [DOM, graphics]}}
 
-We draw each ((actor)) by creating a DOM element for it and
-setting that element's position and size based on the actor's
-properties. The values have to be multiplied by `scale` to go from
-game units to pixels.
+Dibujamos cada ((actor)) creándole un elemento del DOM y definiendo la posición y tamaño de ese elemento basados en las propiedades del actor. Los valores tienen que ser multiplicados por la `escala` que van de unidades de juego a pixeles.
 
 ```{includeCode: true}
-function drawActors(actors) {
-  return elt("div", {}, ...actors.map(actor => {
-    let rect = elt("div", {class: `actor ${actor.type}`});
-    rect.style.width = `${actor.size.x * scale}px`;
-    rect.style.height = `${actor.size.y * scale}px`;
-    rect.style.left = `${actor.pos.x * scale}px`;
-    rect.style.top = `${actor.pos.y * scale}px`;
-    return rect;
-  }));
+function dibujarActores(actores) {
+    return elt("div", {}, ...actores.map(actor => {
+      let rect = elt("div", {class: `actor ${actor.tipo}`});
+      rect.style.width = `${actor.tamano.x * escala}px`;
+      rect.style.height = `${actor.tamano.y * escala}px`;
+      rect.style.left = `${actor.posicion.x * escala}px`;
+      rect.style.top = `${actor.posicion.y * escala}px`;
+      return rect;
+    }));
 }
 ```
 
 {{index "position (CSS)", "class attribute"}}
 
-To give an element more than one class, we separate the class names by
-spaces. In the ((CSS)) code shown next, the `actor` class gives the
-actors their absolute position. Their type name is used as an extra
-class to give them a color. We don't have to define the `lava` class
-again because we're reusing the class for the lava grid squares we
-defined earlier.
+Para darle más de una clase a un elemento, separamos los nombres de clase por espacios. En el código ((CSS)) que se muestra a continuación, la clase `actor` da a los actores su posición absoluta. Su nombre de tipo es usado como una clase extra para darles un color. No tenemos que definir la clase `lava` de nuevo porque estamos reusando la clase para los cuadrados de lava en la cuadrícula que definimos anteriormente.
 
 ```{lang: "text/css"}
 .actor  { position: absolute;            }
-.coin   { background: rgb(241, 229, 89); }
-.player { background: rgb(64, 64, 64);   }
+.moneda   { background: rgb(241, 229, 89); }
+.jugador { background: rgb(64, 64, 64);   }
 ```
 
 {{index graphics, optimization, efficiency, [state, "of application"], [DOM, graphics]}}
 
-The `syncState` method is used to make the display show a given state.
-It first removes the old actor graphics, if any, and then redraws the
-actors in their new positions. It may be tempting to try to reuse the
-DOM elements for actors, but to make that work, we would need a
-lot of additional bookkeeping to associate actors with DOM elements
-and to make sure we remove elements when their actors vanish. Since
-there will typically be only a handful of actors in the game,
-redrawing all of them is not expensive.
+El método `syncState` es usado para hacer que la pantalla muestre un estado dado. Primero quita los gráficos de los viejos actores, si hay alguno, y luego redibuja a los actores en sus nuevas posiciones. Puede ser tentador intentar reusar los elementos del DOM para los actores, pero para hacer que eso funcione, necesitaríamos muchos registros adicionales para asociar a los actores con los elementos del DOM y para asegurarse que quitemmos elementos cuando sus actores se desvanezcan. Ya que típicamente sólo tendremos un puñado de actores en el juego, redibujarlos no es costoso.
 
 ```{includeCode: true}
-DOMDisplay.prototype.syncState = function(state) {
-  if (this.actorLayer) this.actorLayer.remove();
-  this.actorLayer = drawActors(state.actors);
-  this.dom.appendChild(this.actorLayer);
-  this.dom.className = `game ${state.status}`;
-  this.scrollPlayerIntoView(state);
+DOMDisplay.prototype.syncState = function(estado) {
+  if (this.capaActor) this.capaActor.remove();
+  this.capaActor = dibujarActores(estado.actores);
+  this.dom.appendChild(this.capaActor);
+  this.dom.className = `game ${estado.estatus}`;
+  this.scrollPlayerIntoView(estado);
 };
 ```
 
 {{index level, "class attribute"}}
 
-By adding the level's current status as a class name to the wrapper,
-we can style the player actor slightly differently when the game is
-won or lost by adding a ((CSS)) rule that takes effect only when the
-player has an ((ancestor element)) with a given class.
+Añadiendo el estatus del nivel actual como un nombre de clase al wrapper, podemos estilizar al actor jugador ligeramente diferente cuando el juego es ganado o perdido añadiendo un regla de ((CSS)) que toma efecto sólo cuando el jugador tiene un  ((elemento ancestro)) con una clase dada.
 
 ```{lang: "text/css"}
-.lost .player {
+.perdido .jugador {
   background: rgb(160, 64, 64);
 }
-.won .player {
+.ganado .jugador {
   box-shadow: -4px -7px 8px white, 4px -7px 8px white;
 }
 ```
 
 {{index player, "box shadow (CSS)"}}
 
-After touching ((lava)), the player's color turns dark red, suggesting
-scorching. When the last coin has been collected, we add two blurred
-white shadows—one to the top left and one to the top right—to create a
-white halo effect.
+Después de tocar la ((lava)), el color del jugador se vuelve rojo oscuro, sugiriendo que se quema. Cuando la última moneda ha sido recolectada, añadimos dos sombras blancas difuminadas —una arriba a la izquierda y una arriba a la derecha -para crear un efecto blanco de aura.
 
 {{id viewport}}
 
 {{index "position (CSS)", "max-width (CSS)", "overflow (CSS)", "max-height (CSS)", viewport, scrolling, [DOM, graphics]}}
 
-We can't assume that the level always fits in the _viewport_—the
-element into which we draw the game. That is why the
-`scrollPlayerIntoView` call is needed. It ensures that if the level is
-protruding outside the viewport, we scroll that viewport to make sure
-the player is near its center. The following ((CSS)) gives the game's
-wrapping DOM element a maximum size and ensures that anything that
-sticks out of the element's box is not visible. We also give it
-a relative position so that the actors inside it are
-positioned relative to the level's top-left corner.
+No podemos asumir que el nivel siempre encaja en el _viewport_—el elemento en el que dibujamos el juego. Es por esto que se requiere la llamada a `scrollPlayerIntoView`. Esta asegura que si el nivel sobresale fuera del viewport, desplazaremos ese viewport para asegurarnos que el jugador esté cerca de su centro. El siguiente ((CSS)) da al elemento del DOM que envuelve el juego un tamaño máximo y se asegura que cualquier cosa que salga de la caja del elemento no sea visible. También le damos una posición relativa para que el actor que está dentro esté posicionado relativo a la esquina superior izquierda del nivel.
 
 ```{lang: "text/css"}
-.game {
+.juego {
   overflow: hidden;
   max-width: 600px;
   max-height: 450px;
@@ -557,72 +497,56 @@ positioned relative to the level's top-left corner.
 
 {{index scrolling}}
 
-In the `scrollPlayerIntoView` method, we find the player's position
-and update the wrapping element's scroll position. We change the
-scroll position by manipulating that element's `scrollLeft` and
-`scrollTop` properties when the player is too close to the edge.
+En el método `scrollPlayerIntoView`, encontramos la posición del jugador y actualizamos la posición de desplazamiento del elemento que envuelve. Cambiamos la posición de desplazamiento manipulando las propiedades `scrollLeft` y `scrollTop` del elemento cuando el jugador está muy cerca del borde.
 
 ```{includeCode: true}
-DOMDisplay.prototype.scrollPlayerIntoView = function(state) {
-  let width = this.dom.clientWidth;
-  let height = this.dom.clientHeight;
-  let margin = width / 3;
+DOMDisplay.prototype.scrollPlayerIntoView = function(estado) {
+  let ancho = this.dom.clientWidth;
+  let alto = this.dom.clientHeight;
+  let margen = ancho / 3;
 
   // The viewport
-  let left = this.dom.scrollLeft, right = left + width;
-  let top = this.dom.scrollTop, bottom = top + height;
+  let izquierda = this.dom.scrollLeft, derecha = izquierda + ancho;
+  let arriba = this.dom.scrollTop, abajo = arriba + alto;
 
-  let player = state.player;
-  let center = player.pos.plus(player.size.times(0.5))
-                         .times(scale);
+  let jugador = estado.jugador;
+  let centro = jugador.posicion.plus(jugador.tamano.times(0.5))
+                         .times(escala);
 
-  if (center.x < left + margin) {
-    this.dom.scrollLeft = center.x - margin;
-  } else if (center.x > right - margin) {
-    this.dom.scrollLeft = center.x + margin - width;
+  if (centro.x < izquierda + margen) {
+    this.dom.scrollLeft = centro.x - margen;
+  } else if (centro.x > derecha - margen) {
+    this.dom.scrollLeft = centro.x + margen - ancho;
   }
-  if (center.y < top + margin) {
-    this.dom.scrollTop = center.y - margin;
-  } else if (center.y > bottom - margin) {
-    this.dom.scrollTop = center.y + margin - height;
+  if (centro.y < arriba + margen) {
+    this.dom.scrollTop = centro.y - margen;
+  } else if (centro.y > abajo - margen) {
+    this.dom.scrollTop = centro.y + margen - alto;
   }
 };
 ```
 
 {{index center, coordinates, readability}}
 
-The way the player's center is found shows how the methods on our
-`Vector` type allow computations with objects to be written in a
-relatively readable way. To find the actor's center, we add its
-position (its top-left corner) and half its size. That is the center
-in level coordinates, but we need it in pixel coordinates, so we then
-multiply the resulting vector by our display scale.
+La manera en que se encuentra el centro del jugador muestra como los métodos en nuestro tipo `Vector` permiten que las computaciones con objetos sean escritas de una manera relativamente leíble. Para encontrar el centro del jugador, añadimos su posición (su esquina superior izquierda) y la mitad de su tamaño. Ese es el centro en las coordenadas de nivel, pero necesitamos en coordenadas pixel, para que podamos multiplicar el vector resultante por nuestra escala.
 
 {{index validation}}
 
-Next, a series of checks verifies that the player position isn't outside
-of the allowed range. Note that sometimes this will set nonsense
-scroll coordinates that are below zero or beyond the element's scrollable
-area. This is okay—the DOM will constrain them to acceptable values.
-Setting `scrollLeft` to -10 will cause it to become 0.
+A continuación, una serie de validaciones verifican que la posición del jugador no esté fuera del rango permitido. Hay que notar que algunas veces esto fijará coordenadas de desplazamiento sin sentido que están debajo de cero o más allá del área de desplazamiento del elemento. Esto está bien —el DOM los limitará a valores aceptables. Fijar `scrollLeft` a -10 causará que se convierta en 0.
 
-It would have been slightly simpler to always try to scroll the player
-to the center of the ((viewport)). But this creates a rather jarring
-effect. As you are jumping, the view will constantly shift up and
-down. It is more pleasant to have a "neutral" area in the middle of
-the screen where you can move around without causing any scrolling.
+Hubiese sido ligeramente más sencillo siempre tratar de desplazar al jugador al centro del ((viewport)). Pero esto crea un efecto discordante. Mientras brincas, la vista constantemente cambiará arriba y abajo. Es más agradable tener un area "neutral" en el medio de la pantalla donde puedas moverte alrededor sin causar ningún desplazamiento.
 
 {{index [game, screenshot]}}
 
-We are now able to display our tiny level.
+Ahora podemos mostrar nuestro pequeño nivel.
 
 ```{lang: "text/html"}
 <link rel="stylesheet" href="css/game.css">
 
 <script>
-  let simpleLevel = new Level(simpleLevelPlan);
-  let display = new DOMDisplay(document.body, simpleLevel);
-  display.syncState(State.start(simpleLevel));
+  let simpleNivel = new Nivel(simplePlanoDeNivel);
+  let display = new DOMDisplay(document.body, simpleNivel);
+  display.syncState(Estado.start(simpleNivel));
 </script>
 ```
 
@@ -634,9 +558,7 @@ if}}
 
 {{index "link (HTML tag)", CSS}}
 
-The `<link>` tag, when used with `rel="stylesheet"`, is a way to load
-a CSS file into a page. The file `game.css` contains the styles
-necessary for our game.
+La etiqueta `<link>`, cuando se usa con `rel="stylesheet"`, es una forma de cargar un archivo de CSS en una página. El archivo `juego.css` contiene los estilos necesarios para nuestro juego. 
 
 ## Motion and collision
 
